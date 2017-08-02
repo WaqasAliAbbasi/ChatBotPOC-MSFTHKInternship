@@ -1,0 +1,17 @@
+{
+  "name": "microsoft-hk",
+  "version": "0.0.0",
+  "description": "MicrosoftHK",
+  "main": "app.js",
+  "author": {
+    "name": "a-waali"
+  },
+  "dependencies": {
+    "botbuilder": "^3.9.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "needle": "^1.6.0",
+    "node-uuid": "^1.4.8",
+    "request": "^2.81.0",
+    "restify": "^5.0.1"
+  }
+}
