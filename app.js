@@ -79,7 +79,7 @@ bot.use({
 
 // Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
 bot.dialog('/', function (session) {
-    session.send("Hi %s! Welcome to the Microsoft Surface Store Hong Kong. How can I assist you?", session.message.user.name);
+    session.send("Hi %s! Welcome to the Microsoft Surface Store Hong Kong. How may I assist you?", session.message.user.name);
 });
 
 bot.dialog('Specs', function (session, args) {
