@@ -33,7 +33,7 @@ var qnarecognizer = new cognitiveservices.QnAMakerRecognizer({
     subscriptionKey: '93f6d1046640412f853ff47f36a15c46',
     top: 4
 });
-bot.recognizer({ recognizers: [recognizer, qnarecognizer] });
+//bot.recognizer({ recognizers: [recognizer, qnarecognizer] });
 
 //=========================================================
 // Bots Global Actions
