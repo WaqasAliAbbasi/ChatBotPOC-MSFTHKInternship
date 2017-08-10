@@ -59,7 +59,7 @@ handoff.setup(bot, server, isAgent, {
     mongodbProvider: 'mongodb://mshkstorechatbothumanhandoff:v9ZKa4MZHQxl43i2FbiwLu4rSa09y2BOFBK4QHRAJNAILntFQa0HwsoKZ5zdOl2NP7FcEQHpVyDcBXZiBRMrVw==@mshkstorechatbothumanhandoff.documents.azure.com:10255/?ssl=true&replicaSet=globaldb',
     directlineSecret: '0hxweWjk0Fo.cwA.NNI.dcZFbuBvlbFE6ScHspCBjpbymXnvCLF4igN1dXnIC7g',
     textAnalyticsKey: process.env.CG_SENTIMENT_KEY,
-    appInsightsInstrumentationKey: 'ae2e1eb3-9317-4cb8-9b20-e7fa4269ddcd',
+    appInsightsInstrumentationKey: process.env.APPINSIGHTS_INSTRUMENTATIONKEY,
     retainData: process.env.RETAIN_DATA,
     customerStartHandoffCommand: process.env.CUSTOMER_START_HANDOFF_COMMAND
 });
