@@ -40,7 +40,6 @@ bot.recognizer({ recognizers: [recognizer, qnarecognizer] });
 //=========================================================
 
 bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye/i });
-bot.beginDialogAction('help', '/help', { matches: /^help/i });
 bot.beginDialogAction('reset', '/reset', { matches: /^reset/i });
 
 //=========================================================
