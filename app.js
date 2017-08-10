@@ -1,4 +1,4 @@
-var restify = require('restify'),
+var express = require('express'),
     builder = require('botbuilder'),
     needle = require('needle'),
     ffmpeg = require('fluent-ffmpeg'),
@@ -6,10 +6,10 @@ var restify = require('restify'),
     cognitiveservices = require('botbuilder-cognitiveservices'),
     handoff = require('botbuilder-handoff');
 
-// Setup Restify Server
-var server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, function () {
-    console.log('%s listening to %s', server.name, server.url);
+// Setup Express Server (N.B: If you are already using restify for your bot, you will need replace it with an express server)
+const server = express();
+server.listen(process.env.port || process.env.PORT || 3978, '::', () => {
+    console.log('Server Up');
 });
 
 // Create chat connector for communicating with the Bot Framework Service
