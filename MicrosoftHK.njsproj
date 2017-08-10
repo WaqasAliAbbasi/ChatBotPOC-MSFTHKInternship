@@ -19,12 +19,19 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Content Include="package.json" />
+    <Content Include="public\index.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="README.md" />
     <Compile Include="app.js" />
+    <Compile Include="public\connectToBot.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="speech-service.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MicrosoftHK" />
+    <Folder Include="public\" />
     <Folder Include="obj" />
     <Folder Include="obj\Debug" />
   </ItemGroup>

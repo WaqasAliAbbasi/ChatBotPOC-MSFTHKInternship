@@ -3,7 +3,8 @@ var restify = require('restify'),
     needle = require('needle'),
     ffmpeg = require('fluent-ffmpeg'),
     speechService = require('./speech-service.js'),
-    cognitiveservices = require('botbuilder-cognitiveservices');
+    cognitiveservices = require('botbuilder-cognitiveservices'),
+    handoff = require('botbuilder-handoff');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -41,6 +42,28 @@ bot.recognizer({ recognizers: [recognizer, qnarecognizer] });
 bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye/i });
 bot.beginDialogAction('help', '/help', { matches: /^help/i });
 bot.beginDialogAction('reset', '/reset', { matches: /^reset/i });
+
+//=========================================================
+// Bot Human Handoff
+//=========================================================
+
+// Replace this functions with custom login/verification for agents
+const isAgent = (session) => session.message.user.name.startsWith("Agent");
+
+/**
+    bot: builder.UniversalBot
+    app: express ( e.g. const app = express(); )
+    isAgent: function to determine when agent is talking to the bot
+    options: { }     
+**/
+handoff.setup(bot, server, isAgent, {
+    mongodbProvider: 'mongodb://mshkstorechatbothumanhandoff:v9ZKa4MZHQxl43i2FbiwLu4rSa09y2BOFBK4QHRAJNAILntFQa0HwsoKZ5zdOl2NP7FcEQHpVyDcBXZiBRMrVw==@mshkstorechatbothumanhandoff.documents.azure.com:10255/?ssl=true&replicaSet=globaldb',
+    directlineSecret: '0hxweWjk0Fo.cwA.NNI.dcZFbuBvlbFE6ScHspCBjpbymXnvCLF4igN1dXnIC7g',
+    textAnalyticsKey: process.env.CG_SENTIMENT_KEY,
+    appInsightsInstrumentationKey: 'ae2e1eb3-9317-4cb8-9b20-e7fa4269ddcd',
+    retainData: process.env.RETAIN_DATA,
+    customerStartHandoffCommand: process.env.CUSTOMER_START_HANDOFF_COMMAND
+});
 
 //=========================================================
 // Bot Start

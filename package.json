@@ -9,6 +9,7 @@
   "dependencies": {
     "botbuilder": "^3.9.0",
     "botbuilder-cognitiveservices": "^1.1.0",
+    "botbuilder-handoff": "^0.1.9",
     "fluent-ffmpeg": "^2.1.2",
     "needle": "^1.6.0",
     "node-uuid": "^1.4.8",
