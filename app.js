@@ -106,37 +106,37 @@ bot.use({
 //=========================================================
 // Bots Dialogs
 //=========================================================
-//var intents = new builder.IntentDialog({ recognizers: [recognizer, qnarecognizer] });
-//bot.dialog('/', intents);
+var intents = new builder.IntentDialog({ recognizers: [recognizer, qnarecognizer] });
+bot.dialog('/', intents);
 
-////// Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
-////bot.dialog('/', function (session) {
-////    session.send("Hi %s! Welcome to the Microsoft Surface Store Hong Kong. How may I assist you?", session.message.user.name);
-////});
+//// Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
+//bot.dialog('/', function (session) {
+//    session.send("Hi %s! Welcome to the Microsoft Surface Store Hong Kong. How may I assist you?", session.message.user.name);
+//});
 
-//intents.matches('Specs', [
-//    function (session, args, next) {
-//        // retrieve hotel name from matched entities
-//        var deviceEntity = builder.EntityRecognizer.findEntity(args.entities, 'device');
-//        if (deviceEntity) {
-//            session.send('Looking for specifications of \'%s\'...', deviceEntity.entity);
-//            session.endDialog('Dimensions: 11.5" x 7.9" x 0.33" (292 mm x 201 mm x 8.5 mm)\nDisplay	Screen: 12.3" PixelSense Display\nResolution: 2736 x 1824 (267 PPI)\nTouch: 10 point multi- touch\nMemory: 4GB, 8GB, or 16GB RAM\nProcessor: Intel Core 7th- generation m3, i5, or i7\nBattery Life: Up to 13.5 hours of video playback\nGraphics: Intel HD Graphics 615 (m3), Intel HD Graphics 620 (i5), Intel Iris Plus Graphics 640 (i7)');
-//        }
-//    }
-//]);
+intents.matches('Specs', [
+    function (session, args, next) {
+        // retrieve hotel name from matched entities
+        var deviceEntity = builder.EntityRecognizer.findEntity(args.entities, 'device');
+        if (deviceEntity) {
+            session.send('Looking for specifications of \'%s\'...', deviceEntity.entity);
+            session.endDialog('Dimensions: 11.5" x 7.9" x 0.33" (292 mm x 201 mm x 8.5 mm)\nDisplay	Screen: 12.3" PixelSense Display\nResolution: 2736 x 1824 (267 PPI)\nTouch: 10 point multi- touch\nMemory: 4GB, 8GB, or 16GB RAM\nProcessor: Intel Core 7th- generation m3, i5, or i7\nBattery Life: Up to 13.5 hours of video playback\nGraphics: Intel HD Graphics 615 (m3), Intel HD Graphics 620 (i5), Intel Iris Plus Graphics 640 (i7)');
+        }
+    }
+]);
 
-//intents.matches('qna', [
-//    function (session, args, next) {
-//        var answerEntity = builder.EntityRecognizer.findEntity(args.entities, 'answer');
-//        session.send(answerEntity.entity);
-//    }
-//]);
+intents.matches('qna', [
+    function (session, args, next) {
+        var answerEntity = builder.EntityRecognizer.findEntity(args.entities, 'answer');
+        session.send(answerEntity.entity);
+    }
+]);
 
-//intents.onDefault([
-//    function (session) {
-//        session.send('Sorry!! No match!!');
-//    }
-//]);
+intents.onDefault([
+    function (session) {
+        session.send('Sorry!! No match!!');
+    }
+]);
 
 //=========================================================
 // Utilities
