@@ -38,6 +38,6 @@ handoff.setup(bot, app, isAgent, {
     directlineSecret: '0hxweWjk0Fo.cwA.NNI.dcZFbuBvlbFE6ScHspCBjpbymXnvCLF4igN1dXnIC7g',
     textAnalyticsKey: process.env.CG_SENTIMENT_KEY,
     appInsightsInstrumentationKey: process.env.APPINSIGHTS_INSTRUMENTATIONKEY,
-    retainData: process.env.RETAIN_DATA,
+    retainData: 'false',
     customerStartHandoffCommand: process.env.CUSTOMER_START_HANDOFF_COMMAND
 });
