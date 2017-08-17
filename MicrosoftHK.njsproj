@@ -6,7 +6,7 @@
     <ProjectGuid>{a02dfd00-26e6-459f-b649-fe3de284637a}</ProjectGuid>
     <ProjectHome />
     <ProjectView>ShowAllFiles</ProjectView>
-    <StartupFile>appbk.js</StartupFile>
+    <StartupFile>app.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
@@ -14,6 +14,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <NameOfLastUsedPublishProfile>mshkchatbot - Web Deploy</NameOfLastUsedPublishProfile>
     <StartWebBrowser>False</StartWebBrowser>
+    <Environment>port=3978</Environment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -23,8 +24,8 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="README.md" />
+    <Compile Include="app.js.bk" />
     <Compile Include="app.js" />
-    <Compile Include="appbk.js" />
     <Compile Include="public\connectToBot.js">
       <SubType>Code</SubType>
     </Compile>

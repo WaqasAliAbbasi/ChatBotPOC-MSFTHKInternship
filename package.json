@@ -7,6 +7,7 @@
     "name": "a-waali"
   },
   "dependencies": {
+    "azure-event-hubs": "0.0.8",
     "botbuilder": "^3.9.0",
     "botbuilder-cognitiveservices": "^1.1.0",
     "botbuilder-handoff": "^0.1.9",
