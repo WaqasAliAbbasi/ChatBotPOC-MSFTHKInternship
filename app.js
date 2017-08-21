@@ -29,14 +29,14 @@ server.post('/api/messages', connector.listen());
 
 // LUIS Natural Language Processing
 var luisrecognizer = new builder.LuisRecognizer("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/c5c8f1ac-46b4-46ce-8429-6ef105f6034d?subscription-key=2c282b6ca94042ac891d9b66315517c3&staging=true&verbose=true&timezoneOffset=0&q=");
+bot.recognizer(luisrecognizer);
 
 // QnA API
 var qnarecognizer = new cognitiveservices.QnAMakerRecognizer({
     knowledgeBaseId: 'ddf84096-4497-490b-806e-4933de04956c',
-    subscriptionKey: '93f6d1046640412f853ff47f36a15c46',
-    top: 4
+    subscriptionKey: '93f6d1046640412f853ff47f36a15c46'
 });
-//bot.recognizer({ recognizers: [recognizer, qnarecognizer] });
+bot.recognizer(qnarecognizer);
 
 //=========================================================
 // Bots Global Actions
@@ -76,30 +76,24 @@ bot.on('conversationUpdate', function (message) {
     if (message.membersAdded) {
         message.membersAdded.forEach(function (identity) {
             if (identity.id === message.address.bot.id) {
-                bot.beginDialog(message.address, '/');
+                bot.beginDialog(message.address, '/welcome');
             }
         });
     }
+});
+
+bot.dialog('/welcome', function (session) {
+    session.endDialog("Hi %s, How can I help you?",session.message.user.name);
 });
 
 //=========================================================
 // Bots Middleware
 //=========================================================
 
-var client = EventHubClient.fromConnectionString('Endpoint=sb://mshkstorechatbot.servicebus.windows.net/;SharedAccessKeyName=messenger;SharedAccessKey=2uCArt10J6FUENAfR83+fFyPzdgs4o5WfgKTrzkBFy4=;EntityPath=mshkchatbot', 'mshkchatbot')
-var sender = {};
-client.open()
-    .then(function () {
-        return client.createSender();
-    })
-    .then(function (tx) {
-        tx.on('errorReceived', function (err) { console.log(err); });
-        tx.send({ contents: 'Here is some text sent to partition key my-pk.' }, 'my-pk');
-        console.log('yolo');
-    });
+var client = EventHubClient.fromConnectionString('Endpoint=sb://mshkstorechatbot.servicebus.windows.net/;SharedAccessKeyName=messenger;SharedAccessKey=2uCArt10J6FUENAfR83+fFyPzdgs4o5WfgKTrzkBFy4=;EntityPath=mshkchatbot', 'mshkchatbot');
 
 bot.use({
-    botbuilder: function (session, next) {
+    botbuilder: [function (session, next) {
         if (hasAudioAttachment(session)) {
             getAudioStreamFromMessage(session.message, function (stream) {
                 speechService.getTextFromAudioStream(stream)
@@ -115,39 +109,56 @@ bot.use({
         } else {
             next();
         }
-    }
+    },
+        function (session, next) {
+            console.log(session.message.text);
+            client.open()
+                .then(function () {
+                    return client.createSender();
+                })
+                .then(function (tx) {
+                    tx.on('errorReceived', function (err) { console.log(err); });
+                    tx.send({    
+                        contents: session.message.text, time: new Date().toISOString() }, 'my-pk');
+                });
+            next();
+        }
+    ]
 });
 
 //=========================================================
 // Bots Dialogs
 //=========================================================
-var recognizers = new builder.IntentRecognizerSet({ intentThreshold: 0.5, recognizer: [luisrecognizer, qnarecognizer] });
-var intents = new builder.IntentDialog({recognizers:[recognizers]});
-bot.dialog('/', intents);
 
-intents.matches('Specs', [
-    function (session, args, next) {
-        // retrieve hotel name from matched entities
-        var deviceEntity = builder.EntityRecognizer.findEntity(args.entities, 'device');
-        if (deviceEntity) {
-            session.send('Looking for specifications of \'%s\'...', deviceEntity.entity);
-            session.endDialog('Dimensions: 11.5" x 7.9" x 0.33" (292 mm x 201 mm x 8.5 mm)\nDisplay	Screen: 12.3" PixelSense Display\nResolution: 2736 x 1824 (267 PPI)\nTouch: 10 point multi- touch\nMemory: 4GB, 8GB, or 16GB RAM\nProcessor: Intel Core 7th- generation m3, i5, or i7\nBattery Life: Up to 13.5 hours of video playback\nGraphics: Intel HD Graphics 615 (m3), Intel HD Graphics 620 (i5), Intel Iris Plus Graphics 640 (i7)');
-        }
-    }
-]);
+bot.dialog('/', function (session) {
+    session.endDialog("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
+});
 
-intents.matches('qna', [
-    function (session, args, next) {
-        var answerEntity = builder.EntityRecognizer.findEntity(args.entities, 'answer');
-        session.send(answerEntity.entity);
+bot.dialog('/Specs', function (session, args) {
+    // retrieve hotel name from matched entities
+    var deviceEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'device');
+    if (deviceEntity) {
+        session.send('Looking for specifications of \'%s\'...', deviceEntity.entity);
+        session.endDialog('Dimensions: 11.5" x 7.9" x 0.33" (292 mm x 201 mm x 8.5 mm)\nDisplay	Screen: 12.3" PixelSense Display\nResolution: 2736 x 1824 (267 PPI)\nTouch: 10 point multi- touch\nMemory: 4GB, 8GB, or 16GB RAM\nProcessor: Intel Core 7th- generation m3, i5, or i7\nBattery Life: Up to 13.5 hours of video playback\nGraphics: Intel HD Graphics 615 (m3), Intel HD Graphics 620 (i5), Intel Iris Plus Graphics 640 (i7)');
     }
-]);
+}).triggerAction({
+    matches: 'Specs',
+    intentThreshold: 0.50
+    });
 
-intents.onDefault([
-    function (session) {
-        session.send("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
-    }
-]);
+bot.dialog('/qna', function (session, args) {
+    var answerEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'answer');
+    session.endDialog(answerEntity.entity);
+}).triggerAction({
+    matches: 'qna',
+    intentThreshold: 0.50
+    });
+
+bot.dialog('/None', function (session) {
+    session.endDialog("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
+}).triggerAction({
+    matches: 'None'
+});
 
 //=========================================================
 // Utilities
