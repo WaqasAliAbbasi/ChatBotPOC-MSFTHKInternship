@@ -1,3 +1,5 @@
+Object.defineProperty(exports, "__esModule", { value: true });
+
 var express = require('express'),
     builder = require('botbuilder'),
     needle = require('needle'),
@@ -8,7 +10,6 @@ var express = require('express'),
 var EventHubClient = require('azure-event-hubs').Client;
 var Promise = require('bluebird');
 
-Object.defineProperty(exports, "__esModule", { value: true });
 const handoff_1 = require("./handoff");
 const commands_1 = require("./commands");
 
