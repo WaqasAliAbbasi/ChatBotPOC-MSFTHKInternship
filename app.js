@@ -133,10 +133,9 @@ bot.use({
                         contents: session.message.text, time: new Date().toISOString() }, 'my-pk');
                 });
             next();
-        },
-		commands_1.commandsMiddleware(handoff), handoff.routingMiddleware()
+        }
     ]
-});
+},commands_1.commandsMiddleware(handoff), handoff.routingMiddleware());
 
 //=========================================================
 // Bots Dialogs
