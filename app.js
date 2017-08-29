@@ -300,6 +300,22 @@ bot.dialog('/choose', [
 ]).triggerAction({
     matches: 'choose',
     intentThreshold: 0.50
+    });
+
+bot.dialog('/thanks', function (session, args) {
+    session.sendTyping();
+    session.endDialog('My pleasure :)');
+}).triggerAction({
+    matches: 'thanks',
+    intentThreshold: 0.50
+    });
+
+bot.dialog('/greeting', function (session, args) {
+    session.sendTyping();
+    session.endDialog('Hi there! :)');
+}).triggerAction({
+    matches: 'greeting',
+    intentThreshold: 0.50
 });
 //=========================================================
 // Utilities
