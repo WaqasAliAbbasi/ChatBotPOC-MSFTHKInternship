@@ -35,7 +35,7 @@ server.post('/api/messages', connector.listen());
 server.use('/webchat', express.static('public'));
 
 // LUIS Natural Language Processing
-var luisrecognizer = new builder.LuisRecognizer("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/c5c8f1ac-46b4-46ce-8429-6ef105f6034d?subscription-key=2c282b6ca94042ac891d9b66315517c3&staging=true&verbose=true&timezoneOffset=0&q=");
+var luisrecognizer = new builder.LuisRecognizer("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/458ae716-d420-4e25-9894-628cb3b105f6?subscription-key=2c282b6ca94042ac891d9b66315517c3&staging=true&verbose=true&timezoneOffset=0&q=");
 bot.recognizer(luisrecognizer);
 
 // QnA API
@@ -45,10 +45,6 @@ var qnarecognizer = new cognitiveservices.QnAMakerRecognizer({
 });
 bot.recognizer(qnarecognizer);
 
-// replace this function with custom login/verification for agents
-const isAgent = (session) => session.message.user.name.startsWith("Agent");
-const handoff = new handoff_1.Handoff(bot, isAgent);
-
 //=========================================================
 // Bots Global Actions
 //=========================================================
@@ -56,27 +52,13 @@ const handoff = new handoff_1.Handoff(bot, isAgent);
 bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye/i });
 bot.beginDialogAction('reset', '/reset', { matches: /^reset/i });
 
-////=========================================================
-//// Bot Human Handoff
-////=========================================================
+//=========================================================
+// Bot Human Handoff
+//=========================================================
 
-//// Replace this functions with custom login/verification for agents
-//const isAgent = (session) => session.message.user.name.startsWith("Agent");
-
-///**
-//    bot: builder.UniversalBot
-//    app: express ( e.g. const app = express(); )
-//    isAgent: function to determine when agent is talking to the bot
-//    options: { }     
-//**/
-//handoff.setup(bot, server, isAgent, {
-//    mongodbProvider: 'mongodb://mshkstorechatbothumanhandoff:v9ZKa4MZHQxl43i2FbiwLu4rSa09y2BOFBK4QHRAJNAILntFQa0HwsoKZ5zdOl2NP7FcEQHpVyDcBXZiBRMrVw==@mshkstorechatbothumanhandoff.documents.azure.com:10255/?ssl=true&replicaSet=globaldb',
-//    directlineSecret: '0hxweWjk0Fo.cwA.NNI.dcZFbuBvlbFE6ScHspCBjpbymXnvCLF4igN1dXnIC7g',
-//    textAnalyticsKey: process.env.CG_SENTIMENT_KEY,
-//    appInsightsInstrumentationKey: process.env.APPINSIGHTS_INSTRUMENTATIONKEY,
-//    retainData: process.env.RETAIN_DATA,
-//    customerStartHandoffCommand: process.env.CUSTOMER_START_HANDOFF_COMMAND
-//});
+// replace this function with custom login/verification for agents
+const isAgent = (session) => session.message.user.name.startsWith("Agent");
+const handoff = new handoff_1.Handoff(bot, isAgent);
 
 //=========================================================
 // Bot Start
@@ -123,27 +105,44 @@ bot.use({
     },
         function (session, next) {
             console.log(session.message.text);
-            client.open()
-                .then(function () {
-                    return client.createSender();
-                })
-                .then(function (tx) {
-                    tx.on('errorReceived', function (err) { console.log(err); });
-                    tx.send({    
-                        contents: session.message.text, time: new Date().toISOString() }, 'my-pk');
-                });
+            //client.open()
+            //    .then(function () {
+            //        return client.createSender();
+            //    })
+            //    .then(function (tx) {
+            //        tx.on('errorReceived', function (err) { console.log(err); });
+            //        tx.send({    
+            //            contents: session.message.text, time: new Date().toISOString() }, 'my-pk');
+            //    });
             next();
         }
     ]
 },commands_1.commandsMiddleware(handoff), handoff.routingMiddleware());
 
 //=========================================================
-// Bots Dialogs
+// Bot Initial Dialog Setup
 //=========================================================
+bot.dialog('/qna', function (session, args) {
+    var answerEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'answer');
+    session.endDialog(answerEntity.entity);
+}).triggerAction({
+    matches: 'qna',
+    intentThreshold: 0.50
+});
+
+bot.dialog('/None', function (session) {
+    session.endDialog("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
+}).triggerAction({
+    matches: 'None'
+    });
 
 bot.dialog('/', function (session) {
     session.endDialog("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
 });
+
+//=========================================================
+// LUIS Dialogs
+//=========================================================
 
 bot.dialog('/Specs', function (session, args) {
     // retrieve hotel name from matched entities
@@ -157,23 +156,148 @@ bot.dialog('/Specs', function (session, args) {
     intentThreshold: 0.50
     });
 
-bot.dialog('/qna', function (session, args) {
-    var answerEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'answer');
-    session.endDialog(answerEntity.entity);
-}).triggerAction({
-    matches: 'qna',
+var preference = [0, 0, 0, 0, 0];
+
+bot.dialog('/choose', [
+    function (session) {
+        session.send("Sure, just tell me a few things and I can come up with a suggestion for you :)");
+        preference = [0, 0, 0, 0, 0];
+        builder.Prompts.choice(session, "Are you looking for a device that lets you work anywhere on the go?", "Yes|No", { listStyle: builder.ListStyle.button });
+    },
+    function (session, results) {
+        var choice = [0, 0, 0, 0, 0];
+        if (results.response.entity == 'Yes') {
+            choice = [10, 10, 10, 10, 0];
+        }
+        else if (results.response.entity == 'No'){
+            choice = [0, 0, 0, 0, 100];
+        }
+        preference = sumArrayElements(preference, choice);
+
+        builder.Prompts.choice(session, "What is the most important feature to you in a laptop?", "Versatility|Power|Don'tCare", { listStyle: builder.ListStyle.button });
+    },
+    function (session, results) {
+        var choice = [0, 0, 0, 0, 0];
+        if (results.response.entity == 'Versatility') {
+            choice = [0, 10, 0, 0, 0];
+        }
+        else if (results.response.entity == 'Power') {
+            choice = [0, 0, 10, 15, 0];
+        }
+        else if (results.response.entity == 'Don\'tCare') {
+            choice = [10, 0, 10, 10, 0];
+        }
+        preference = sumArrayElements(preference, choice);
+
+        builder.Prompts.choice(session, "Is it important that you have a lightweight device?", "Yes|No", { listStyle: builder.ListStyle.button });
+    },
+    function (session, results) {
+        var choice = [0, 0, 0, 0, 0];
+        if (results.response.entity == 'Yes') {
+            choice = [50, 50, 20, 10, 0];
+        }
+        else if (results.response.entity == 'No') {
+            choice = [20, 20, 40, 40, 0];
+        }
+        preference = sumArrayElements(preference, choice);
+
+        builder.Prompts.choice(session, "What screen size do you prefer?", "12.3\"|13.5\"", { listStyle: builder.ListStyle.button });
+    },
+    function (session, results) {
+        var choice = [0, 0, 0, 0, 0];
+        if (results.response.entity == '12.3\"') {
+            choice = [0, 30, 0, 0, 0];
+        }
+        else if (results.response.entity == '13.5\"') {
+            choice = [20, 0, 20, 20, 0];
+        }
+        preference = sumArrayElements(preference, choice);
+
+        builder.Prompts.choice(session, "Is long battery life important?", "Yes|No", { listStyle: builder.ListStyle.button });
+    },
+    function (session, results) {
+        var choice = [0, 0, 0, 0, 0];
+        if (results.response.entity == 'Yes') {
+            choice = [60, 10, 20, 50, 0];
+        }
+        else if (results.response.entity == 'No') {
+            choice = [20, 20, 30, 20, 0];
+        }
+        preference = sumArrayElements(preference, choice);
+
+        var devices = [
+            new builder.Message(session).attachments([
+                new builder.ThumbnailCard(session)
+                    .title("Surface Laptop")
+                    .subtitle("Surface Laptop elevates design and performance to an artful blend of luxurious touches, ease of use, discreetly hidden Omnisonic Speakers, and a brilliant interactive touchscreen.")
+                    .images([
+                        builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_SL_V1.jpg?version=eb6d6622-8b38-14e5-e5ac-f511e4567e62")
+                    ])
+                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surface-laptop"))
+            ]),
+            new builder.Message(session).attachments([
+                new builder.ThumbnailCard(session)
+                    .title("Surface Pro")
+                    .subtitle("Now better than ever, Surface Pro combines the best of a laptop, tablet, and studio — with a 20% performance boost from the 7th-generation Intel® Core™ processor, plus longer battery life of up to 13.5 hours.")
+                    .images([
+                        builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_J_EN-US_V1.jpg?version=5fb8f316-8ec0-e366-e515-84f9fc5f0a98")
+                    ])
+                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surface-pro"))
+            ]),
+            new builder.Message(session).attachments([
+                new builder.ThumbnailCard(session)
+                    .title("Surface Book")
+                    .subtitle("Surface Book is built for extreme performance, giving you lightning fast access to programs, videos, and music.")
+                    .images([
+                        builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_Recommend_Book_V1.jpg?version=8af31a91-4688-a378-466c-01c73a9095bd")
+                    ])
+                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surfacebook"))
+            ]),
+            new builder.Message(session).attachments([
+                new builder.ThumbnailCard(session)
+                    .title("Surface Book with Performance Base")
+                    .subtitle("Surface Book is built for extreme performance, giving you lightning fast access to programs, videos, and music.")
+                    .images([
+                        builder.CardImage.create(session, "https://upload.wikimedia.org/wikipedia/en/thumb/2/2a/PikePlaceMarket.jpg/320px-PikePlaceMarket.jpg")
+                    ])
+                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/Surface-Book-with-Performance-Base"))
+            ]),
+            new builder.Message(session).attachments([
+                new builder.ThumbnailCard(session)
+                    .title("Surface Studio")
+                    .subtitle("Turn your desk into a Studio. Designed for the creative process, the 28” PixelSense™ Display gives you a huge canvas for all kinds of work.")
+                    .images([
+                        builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_Recommend_Studio_V1.jpg?version=fe4be77e-4a26-a2ca-5a87-b26ff1853e0b")
+                    ])
+                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surface-studio"))
+            ])];
+
+        session.send("Give me a second while I think of the best device for you...");
+        session.sendTyping();
+        session.send("I think this one will be best for you :)");
+        session.endDialog(devices[preference.indexOf(Math.max.apply(null, preference))]);
+    }
+]).triggerAction({
+    matches: 'choose',
     intentThreshold: 0.50
-    });
-
-bot.dialog('/None', function (session) {
-    session.endDialog("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
-}).triggerAction({
-    matches: 'None'
 });
-
 //=========================================================
 // Utilities
 //=========================================================
+
+function sumArrayElements() {
+    var arrays = arguments, results = [],
+        count = arrays[0].length, L = arrays.length,
+        sum, next = 0, i;
+    while (next < count) {
+        sum = 0, i = 0;
+        while (i < L) {
+            sum += Number(arrays[i++][next]);
+        }
+        results[next++] = sum;
+    }
+    return results;
+}
 
 function hasAudioAttachment(session) {
     if (session.message.attachments) {
