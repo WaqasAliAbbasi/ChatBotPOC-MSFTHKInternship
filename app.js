@@ -135,7 +135,7 @@ bot.dialog('/None', function (session) {
     session.send("Sorry %s, I can't help you with that. Please wait while I connect you to somebody who can :)", session.message.user.name.split(" ")[0]);
 
     const conversation = handoff.getConversation({ customerConversationId: session.message.address.conversation.id }, session.message.address);
-    if (conversation.state == handoff.ConversationState.Bot) {
+    if (conversation.state == handoff_1.ConversationState.Bot) {
         handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, session.message.text);
         handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
     }     
@@ -148,7 +148,7 @@ bot.dialog('/', function (session) {
     session.send("Sorry %s, I can't help you with that. Please wait while I connect you to somebody who can :)", session.message.user.name.split(" ")[0]);
 
     const conversation = handoff.getConversation({ customerConversationId: session.message.address.conversation.id }, session.message.address);
-    if (conversation.state == handoff.ConversationState.Bot) {
+    if (conversation.state == handoff_1.ConversationState.Bot) {
         handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, session.message.text);
         handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
     }    
