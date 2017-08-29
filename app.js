@@ -160,8 +160,10 @@ var preference = [0, 0, 0, 0, 0];
 
 bot.dialog('/choose', [
     function (session) {
+        session.sendTyping();
         session.send("Sure, just tell me a few things and I can come up with a suggestion for you :)");
         preference = [0, 0, 0, 0, 0];
+        session.sendTyping();
         builder.Prompts.choice(session, "Are you looking for a device that lets you work anywhere on the go?", "Yes|No", { listStyle: builder.ListStyle.button });
     },
     function (session, results) {
@@ -174,6 +176,7 @@ bot.dialog('/choose', [
         }
         preference = sumArrayElements(preference, choice);
 
+        session.sendTyping();
         builder.Prompts.choice(session, "What is the most important feature to you in a laptop?", "Versatility|Power|Don'tCare", { listStyle: builder.ListStyle.button });
     },
     function (session, results) {
@@ -189,6 +192,7 @@ bot.dialog('/choose', [
         }
         preference = sumArrayElements(preference, choice);
 
+        session.sendTyping();
         builder.Prompts.choice(session, "Is it important that you have a lightweight device?", "Yes|No", { listStyle: builder.ListStyle.button });
     },
     function (session, results) {
@@ -201,6 +205,7 @@ bot.dialog('/choose', [
         }
         preference = sumArrayElements(preference, choice);
 
+        session.sendTyping();
         builder.Prompts.choice(session, "What screen size do you prefer?", "12.3\"|13.5\"", { listStyle: builder.ListStyle.button });
     },
     function (session, results) {
@@ -213,6 +218,7 @@ bot.dialog('/choose', [
         }
         preference = sumArrayElements(preference, choice);
 
+        session.sendTyping();
         builder.Prompts.choice(session, "Is long battery life important?", "Yes|No", { listStyle: builder.ListStyle.button });
     },
     function (session, results) {
@@ -225,56 +231,70 @@ bot.dialog('/choose', [
         }
         preference = sumArrayElements(preference, choice);
 
+        session.sendTyping();
+        session.send("Give me a second while I think of the best device for you...");
+
         var devices = [
             new builder.Message(session).attachments([
-                new builder.ThumbnailCard(session)
+                new builder.HeroCard(session)
                     .title("Surface Laptop")
-                    .subtitle("Surface Laptop elevates design and performance to an artful blend of luxurious touches, ease of use, discreetly hidden Omnisonic Speakers, and a brilliant interactive touchscreen.")
+                    .text("Surface Laptop elevates design and performance to an artful blend of luxurious touches, ease of use, discreetly hidden Omnisonic Speakers, and a brilliant interactive touchscreen.")
                     .images([
                         builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_SL_V1.jpg?version=eb6d6622-8b38-14e5-e5ac-f511e4567e62")
                     ])
-                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surface-laptop"))
+                    .buttons([
+                        builder.CardAction.openUrl(session, 'https://www.microsoftstore.com.hk/product/surface-laptop', 'Buy Now')
+                    ])
             ]),
             new builder.Message(session).attachments([
-                new builder.ThumbnailCard(session)
+                new builder.HeroCard(session)
                     .title("Surface Pro")
-                    .subtitle("Now better than ever, Surface Pro combines the best of a laptop, tablet, and studio — with a 20% performance boost from the 7th-generation Intel® Core™ processor, plus longer battery life of up to 13.5 hours.")
+                    .text("Now better than ever, Surface Pro combines the best of a laptop, tablet, and studio — with a 20% performance boost from the 7th-generation Intel® Core™ processor, plus longer battery life of up to 13.5 hours.")
                     .images([
                         builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_J_EN-US_V1.jpg?version=5fb8f316-8ec0-e366-e515-84f9fc5f0a98")
                     ])
-                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surface-pro"))
+                    .buttons([
+                        builder.CardAction.openUrl(session, 'https://www.microsoftstore.com.hk/product/surface-pro', 'Buy Now')
+                    ])
             ]),
             new builder.Message(session).attachments([
-                new builder.ThumbnailCard(session)
+                new builder.HeroCard(session)
                     .title("Surface Book")
-                    .subtitle("Surface Book is built for extreme performance, giving you lightning fast access to programs, videos, and music.")
+                    .text("Surface Book is built for extreme performance, giving you lightning fast access to programs, videos, and music.")
                     .images([
                         builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_Recommend_Book_V1.jpg?version=8af31a91-4688-a378-466c-01c73a9095bd")
                     ])
-                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surfacebook"))
+                    .buttons([
+                        builder.CardAction.openUrl(session, 'https://www.microsoftstore.com.hk/product/surfacebook', 'Buy Now')
+                    ])
             ]),
             new builder.Message(session).attachments([
-                new builder.ThumbnailCard(session)
+                new builder.HeroCard(session)
                     .title("Surface Book with Performance Base")
-                    .subtitle("Surface Book is built for extreme performance, giving you lightning fast access to programs, videos, and music.")
+                    .text("Surface Book is built for extreme performance, giving you lightning fast access to programs, videos, and music.")
                     .images([
                         builder.CardImage.create(session, "https://upload.wikimedia.org/wikipedia/en/thumb/2/2a/PikePlaceMarket.jpg/320px-PikePlaceMarket.jpg")
                     ])
-                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/Surface-Book-with-Performance-Base"))
+                    .buttons([
+                        builder.CardAction.openUrl(session, 'https://www.microsoftstore.com.hk/product/Surface-Book-with-Performance-Base', 'Buy Now')
+                    ])
             ]),
             new builder.Message(session).attachments([
-                new builder.ThumbnailCard(session)
+                new builder.HeroCard(session)
                     .title("Surface Studio")
-                    .subtitle("Turn your desk into a Studio. Designed for the creative process, the 28” PixelSense™ Display gives you a huge canvas for all kinds of work.")
+                    .text("Turn your desk into a Studio. Designed for the creative process, the 28” PixelSense™ Display gives you a huge canvas for all kinds of work.")
                     .images([
                         builder.CardImage.create(session, "https://c.s-microsoft.com/en-us/CMSImages/Surface_Business_HMC_Recommend_Studio_V1.jpg?version=fe4be77e-4a26-a2ca-5a87-b26ff1853e0b")
                     ])
-                    .tap(builder.CardAction.openUrl(session, "https://www.microsoftstore.com.hk/product/surface-studio"))
+                    .buttons([
+                        builder.CardAction.openUrl(session, 'https://www.microsoftstore.com.hk/product/surface-studio', 'Buy Now')
+                    ])
             ])];
 
-        session.send("Give me a second while I think of the best device for you...");
         session.sendTyping();
         session.send("I think this one will be best for you :)");
+
+        session.sendTyping();
         session.endDialog(devices[preference.indexOf(Math.max.apply(null, preference))]);
     }
 ]).triggerAction({
