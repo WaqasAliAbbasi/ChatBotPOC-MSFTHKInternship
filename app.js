@@ -76,7 +76,7 @@ bot.on('conversationUpdate', function (message) {
 });
 
 bot.dialog('/welcome', function (session) {
-    session.endDialog("Hi %s, How can I help you?",session.message.user.name);
+    session.endDialog("Hi %s, How can I help you?", session.message.user.name.split(" ")[0]);
 });
 
 //=========================================================
@@ -131,13 +131,27 @@ bot.dialog('/qna', function (session, args) {
 });
 
 bot.dialog('/None', function (session) {
-    session.endDialog("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
+    session.sendTyping();
+    session.endDialog("Sorry %s, I can't help you with that. Please wait while I connect you to somebody who can :)", session.message.user.name.split(" ")[0]);
+
+    const conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+    if (conversation.state == handoff_1.ConversationState.Bot) {
+        handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+        handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
+    }  
 }).triggerAction({
     matches: 'None'
     });
 
 bot.dialog('/', function (session) {
-    session.endDialog("Sorry, I can't help you with that. Please contact our customer support representative at https://www.microsoftstore.com.hk/faq/contact_us");
+    session.sendTyping();
+    session.endDialog("Sorry %s, I can't help you with that. Please wait while I connect you to somebody who can :)", session.message.user.name.split(" ")[0]);
+
+    const conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+    if (conversation.state == handoff_1.ConversationState.Bot) {
+        handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+        handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
+    }    
 });
 
 //=========================================================
@@ -312,7 +326,7 @@ bot.dialog('/thanks', function (session, args) {
 
 bot.dialog('/greeting', function (session, args) {
     session.sendTyping();
-    session.endDialog('Hi there! :)');
+    session.endDialog('Hi there %s! :)', session.message.user.name.split(" ")[0]);
 }).triggerAction({
     matches: 'greeting',
     intentThreshold: 0.50
