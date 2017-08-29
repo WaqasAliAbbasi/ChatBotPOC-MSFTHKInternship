@@ -13,6 +13,8 @@ var Promise = require('bluebird');
 const handoff_1 = require("./handoff");
 const commands_1 = require("./commands");
 
+const instrumentation = require('botbuilder-instrumentation');
+
 // Setup Express Server (N.B: If you are already using restify for your bot, you will need replace it with an express server)
 const server = express();
 server.listen(process.env.port || process.env.PORT || 3978, '::', () => {
@@ -44,6 +46,19 @@ var qnarecognizer = new cognitiveservices.QnAMakerRecognizer({
     subscriptionKey: '93f6d1046640412f853ff47f36a15c46'
 });
 bot.recognizer(qnarecognizer);
+
+//=========================================================
+// Bot Instrumentation
+//=========================================================
+
+// Setting up advanced instrumentation
+let logging = new instrumentation.BotFrameworkInstrumentation({
+    instrumentationKey: 'a7fc82ff-5c3b-4127-a2e8-0a92746f889a',
+    sentiments: {
+        key: 'c22bbf8351aa47f59b7abf14faa74b1d',
+    }
+});
+logging.monitor(bot, luisrecognizer);
 
 //=========================================================
 // Bots Global Actions
@@ -125,6 +140,9 @@ bot.use({
 bot.dialog('/qna', function (session, args) {
     var answerEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'answer');
     session.endDialog(answerEntity.entity);
+
+    // Hook into the result function of QNA to extract relevant data for logging.
+    logging.trackQNAEvent(session, session.message.text, args.intent.answers[0].questions[0], answerEntity.entity, answerEntity.score);
 }).triggerAction({
     matches: 'qna',
     intentThreshold: 0.50
