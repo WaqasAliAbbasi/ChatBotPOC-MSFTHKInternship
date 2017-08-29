@@ -75,7 +75,7 @@ class Handoff {
             case ConversationState.Bot:
                 return next();
             case ConversationState.Waiting:
-                session.send("Connecting you to the next available agent.");
+                session.send("Connecting you to the next available agent. Type \"Disconnect\" to get off the waitlist.");
                 return;
             case ConversationState.Watch:
                 this.bot.send(new builder.Message().address(conversation.agent).text(message.text));

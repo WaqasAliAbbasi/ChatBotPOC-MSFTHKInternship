@@ -85,9 +85,14 @@ function agentCommand(session, next, handoff) {
 }
 function customerCommand(session, next, handoff) {
     const message = session.message;
-    if (message.text === 'help') {
+    const conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+    if (message.text === 'Disconnect' && conversation.state == handoff_1.ConversationState.Waiting) {
+        disconnectCustomer(conversation, handoff, session);
+        session.send("You are now off the waitlist :)")
+        return;
+    }
+    else if (message.text === 'help') {
         // lookup the conversation (create it if one doesn't already exist)
-        const conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
         if (conversation.state == handoff_1.ConversationState.Bot) {
             handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
             handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
@@ -129,6 +134,8 @@ function currentConversations(handoff) {
 }
 function disconnectCustomer(conversation, handoff, session) {
     if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
-        session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+        if (handoff.isAgent(session)) {
+            session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+        }
     }
 }
