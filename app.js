@@ -52,7 +52,7 @@ bot.recognizer(qnarecognizer);
 
 // Setting up advanced instrumentation
 let logging = new instrumentation.BotFrameworkInstrumentation({
-    instrumentationKey: process.env.INSTRUMENTATION_KEY,
+    instrumentationKey: "0a9ef231-6426-43f2-859e-cc2df5b73012",
     sentiments: {
         key: process.env.SENTIMENT_KEY,
     }
