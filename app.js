@@ -15,7 +15,6 @@ const commands_1 = require("./commands");
 
 const instrumentation = require('botbuilder-instrumentation');
 
-// Setup Express Server (N.B: If you are already using restify for your bot, you will need replace it with an express server)
 const server = express();
 server.listen(process.env.port || process.env.PORT || 3978, '::', () => {
     console.log('Server Up');
@@ -37,13 +36,13 @@ server.post('/api/messages', connector.listen());
 server.use('/webchat', express.static('public'));
 
 // LUIS Natural Language Processing
-var luisrecognizer = new builder.LuisRecognizer("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/458ae716-d420-4e25-9894-628cb3b105f6?subscription-key=2c282b6ca94042ac891d9b66315517c3&staging=true&verbose=true&timezoneOffset=0&q=");
+var luisrecognizer = new builder.LuisRecognizer(process.env.LUIS_URL);
 bot.recognizer(luisrecognizer);
 
 // QnA API
 var qnarecognizer = new cognitiveservices.QnAMakerRecognizer({
     knowledgeBaseId: 'ddf84096-4497-490b-806e-4933de04956c',
-    subscriptionKey: '93f6d1046640412f853ff47f36a15c46'
+    subscriptionKey: process.env.QNA_KEY
 });
 bot.recognizer(qnarecognizer);
 
@@ -53,9 +52,9 @@ bot.recognizer(qnarecognizer);
 
 // Setting up advanced instrumentation
 let logging = new instrumentation.BotFrameworkInstrumentation({
-    instrumentationKey: 'a7fc82ff-5c3b-4127-a2e8-0a92746f889a',
+    instrumentationKey: process.env.INSTRUMENTATION_KEY,
     sentiments: {
-        key: 'c22bbf8351aa47f59b7abf14faa74b1d',
+        key: process.env.SENTIMENT_KEY,
     }
 });
 logging.monitor(bot, luisrecognizer);
@@ -98,7 +97,7 @@ bot.dialog('/welcome', function (session) {
 // Bots Middleware
 //=========================================================
 
-var client = EventHubClient.fromConnectionString('Endpoint=sb://mshkstorechatbot.servicebus.windows.net/;SharedAccessKeyName=messenger;SharedAccessKey=2uCArt10J6FUENAfR83+fFyPzdgs4o5WfgKTrzkBFy4=;EntityPath=mshkchatbot', 'mshkchatbot');
+var client = EventHubClient.fromConnectionString(process.env.EVENTHUB_URL, 'mshkchatbot');
 
 bot.use({
     botbuilder: [function (session, next) {
