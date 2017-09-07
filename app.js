@@ -5,15 +5,10 @@ var express = require('express'),
     needle = require('needle'),
     ffmpeg = require('fluent-ffmpeg'),
     speechService = require('./speech-service.js'),
-    cognitiveservices = require('botbuilder-cognitiveservices');
-
-var EventHubClient = require('azure-event-hubs').Client;
-var Promise = require('bluebird');
-
-const handoff_1 = require("./handoff");
-const commands_1 = require("./commands");
-
-const instrumentation = require('botbuilder-instrumentation');
+    cognitiveservices = require('botbuilder-cognitiveservices'),
+    handoff_1 = require("./handoff"),
+    commands_1 = require("./commands"),
+    instrumentation = require('botbuilder-instrumentation');
 
 const server = express();
 server.listen(process.env.port || process.env.PORT || 3978, '::', () => {
@@ -41,7 +36,7 @@ bot.recognizer(luisrecognizer);
 
 // QnA API
 var qnarecognizer = new cognitiveservices.QnAMakerRecognizer({
-    knowledgeBaseId: 'ddf84096-4497-490b-806e-4933de04956c',
+    knowledgeBaseId: process.env.QNA_KNOWLEDGEBASE,
     subscriptionKey: process.env.QNA_KEY
 });
 bot.recognizer(qnarecognizer);
@@ -52,7 +47,7 @@ bot.recognizer(qnarecognizer);
 
 // Setting up advanced instrumentation
 let logging = new instrumentation.BotFrameworkInstrumentation({
-    instrumentationKey: "0a9ef231-6426-43f2-859e-cc2df5b73012",
+    instrumentationKey: "fff37777-2f10-49a3-a9a5-4573228eb921",
     sentiments: {
         key: process.env.SENTIMENT_KEY,
     }
@@ -97,7 +92,7 @@ bot.dialog('/welcome', function (session) {
 // Bots Middleware
 //=========================================================
 
-var client = EventHubClient.fromConnectionString(process.env.EVENTHUB_URL, 'mshkchatbot');
+//var client = EventHubClient.fromConnectionString(process.env.EVENTHUB_URL, 'mshkchatbot');
 
 bot.use({
     botbuilder: [function (session, next) {
